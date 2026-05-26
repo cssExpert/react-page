@@ -1,4 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Next.js Editor
+
+A modern and high-performance web editor built using Next.js and React.  
+This project focuses on delivering a fast, scalable, and responsive editing experience with clean UI/UX and optimized frontend architecture.
+
+---
+
+## 🚀 Features
+
+- ⚡ Built with Next.js for optimized performance
+- 🎨 Modern and responsive UI
+- 📝 Rich text editing experience
+- 🔄 Real-time updates and preview
+- 📱 Mobile-friendly responsive layout
+- 🧩 Reusable React components
+- 🌙 Clean and scalable project structure
+- 🚀 SEO optimized
+- 🎯 Fast page rendering and routing
+- 🎨 Styled using Tailwind CSS / Bootstrap
+
+---
+
+## 🛠️ Tech Stack
+
+- Next.js
+- React.js
+- JavaScript / TypeScript
+- Tailwind CSS / Bootstrap
+- HTML5 & CSS3
+- REST API Integration
+- Git & GitHub
+
+---
+
+## 📂 Project Structure
+
+```bash
+├── components
+├── pages
+├── public
+├── styles
+├── utils
+├── hooks
+├── services
+└── package.json
+```
+
+---
 
 ## Getting Started
 
@@ -34,3 +81,62 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+
+---
+
+## 📸 Screenshots
+
+### Home Page
+![Home Page](./screenshots/editor.png)
+
+### Dashboard
+![Dashboard](./screenshots/editor.png)
+
+### Mobile View
+![Mobile View](./screenshots/editor.png)
+
+---
+
+## 🌐 Live Demo
+
+Add your live project link here.
+
+Example:
+
+```bash
+https://your-live-demo-url.com
+```
+
+---
+
+## 📈 Performance
+
+- Optimized rendering using Next.js
+- Reusable and maintainable components
+- Clean architecture for scalability
+- SEO-friendly implementation
+- Fast loading experience
+
+---
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome.
+
+Feel free to fork this repository and submit pull requests.
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+---
+
+## 👨‍💻 Author
+
+Developed by Ravi Gupta
+
+- GitHub: https://github.com/officialRaviG
+- Portfolio: https://officialravig.github.io/row-full/
