@@ -1,0 +1,204 @@
+"use client";
+
+import { useRef, Fragment } from "react";
+import { useDndContext, useDroppable } from "@dnd-kit/core";
+import { motion, AnimatePresence } from "framer-motion";
+import { Monitor, Tablet, Smartphone, MousePointer2, Plus } from "lucide-react";
+
+import { useEditorStore } from "@/store/editorStore";
+import CanvasNode from "./CanvasNode";
+import { cn } from "@/lib/utils";
+import AddressBar from "./AddressBar";
+
+const CANVAS_WIDTHS = {
+  desktop: "w-full max-w-none",
+  tablet: "w-[768px]",
+  mobile: "w-[390px]",
+};
+
+function InsertZone({ index }: { index: number }) {
+  const { setNodeRef, isOver } = useDroppable({
+    id: `insert-${index}`,
+    data: { type: "INSERT_ZONE", index },
+  });
+  return (
+    <div
+      ref={setNodeRef}
+      className={cn(
+        "mx-3 my-1 h-10 rounded-lg border-2 border-dashed flex items-center justify-center transition-all duration-150",
+        isOver
+          ? "border-indigo-400 dark:border-[#CEFF00] bg-indigo-50 dark:bg-[#CEFF00]/10"
+          : "border-gray-200 dark:border-[#2A2A2A]",
+      )}
+    >
+      <span
+        className={cn(
+          "text-xs font-medium pointer-events-none transition-colors duration-150",
+          isOver
+            ? "text-indigo-500 dark:text-[#CEFF00]"
+            : "text-gray-300 dark:text-[#3A3A3A]",
+        )}
+      >
+        Drop here
+      </span>
+    </div>
+  );
+}
+
+export default function Canvas() {
+  const { nodes, responsiveMode, selectNode, showGrid } = useEditorStore();
+  const canvasRef = useRef<HTMLDivElement>(null);
+
+  const { active } = useDndContext();
+  const isDragActive = active?.data.current?.type === "BLOCK";
+  const { setNodeRef, isOver } = useDroppable({
+    id: "canvas-root",
+    data: { type: "CANVAS_ROOT" },
+  });
+
+  return (
+    <div className="flex-1 flex flex-col overflow-hidden bg-slate-100 dark:bg-[#131313]">
+      <div className="flex-1 flex overflow-hidden px-8 py-5">
+        <div
+          className={cn(
+            "relative flex flex-col transition-all mx-auto duration-300 w-full rounded-xl",
+            CANVAS_WIDTHS[responsiveMode],
+            responsiveMode !== "desktop" && "shadow-2xl",
+          )}
+        >
+          <div
+            ref={(el) => {
+              setNodeRef(el);
+              (
+                canvasRef as React.MutableRefObject<HTMLDivElement | null>
+              ).current = el;
+            }}
+            className={cn(
+              "flex-1 flex flex-col bg-white dark:bg-[#252525] rounded-xl overflow-hidden relative border border-gray-200 dark:border-[#2A2A2A]",
+              showGrid && "bg-grid-pattern",
+              isOver &&
+                nodes.length === 0 &&
+                "outline outline-indigo-600 dark:outline-[#CEFF00] -outline-offset-2",
+            )}
+            onClick={(e) => {
+              if (e.target === canvasRef.current) {
+                selectNode(null);
+              }
+            }}
+          >
+            {/* Canvas toolbar */}
+            <div className="shrink-0 bg-gray-200 dark:bg-[#252525] border-b border-gray-200 dark:border-[#333333] px-3 py-2">
+              <CanvasToolbar />
+            </div>
+
+            {/* Scrollable content area */}
+            <div className="flex-1 overflow-y-auto bg-white dark:bg-[#1A1A1A] relative @container">
+              {responsiveMode !== "desktop" && (
+                <div className="absolute -top-px left-0 right-0 flex justify-end pointer-events-none z-10">
+                  <div className="text-[11px] px-3 py-0.5 rounded-t-md font-inter bg-gray-100 dark:bg-[#252525] text-gray-500 dark:text-[#7A7A7A]">
+                    {responsiveMode === "tablet" ? "768px" : "390px"}
+                  </div>
+                </div>
+              )}
+
+              <AnimatePresence>
+                {nodes.length === 0 ? (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none"
+                  >
+                    <div
+                      className={cn(
+                        "w-20 h-20 rounded-2xl flex items-center justify-center mb-5 transition-colors",
+                        isOver
+                          ? "bg-indigo-50 dark:bg-[#CEFF00]/10"
+                          : "bg-slate-100",
+                      )}
+                    >
+                      {isOver ? (
+                        <Plus className="w-8 h-8 text-indigo-600 dark:text-[#CEFF00]" />
+                      ) : (
+                        <MousePointer2 className="w-8 h-8 text-gray-300" />
+                      )}
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-500 mb-1.5">
+                      {isOver ? "Drop to add" : "Start building"}
+                    </h3>
+                    <p className="text-sm text-gray-500 max-w-xs">
+                      Drag blocks from the left panel and drop them here
+                    </p>
+                  </motion.div>
+                ) : (
+                  <div className="pt-10 pb-2 px-2 md:px-3">
+                    {isDragActive && <InsertZone index={0} />}
+                    {nodes.map((node, index) => (
+                      <Fragment key={node.id}>
+                        <motion.div
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, scale: 0.98 }}
+                          transition={{ duration: 0.15 }}
+                        >
+                          <CanvasNode
+                            node={node}
+                            isRoot
+                            index={index}
+                            isDragActive={isDragActive}
+                          />
+                        </motion.div>
+                        {isDragActive && <InsertZone index={index + 1} />}
+                      </Fragment>
+                    ))}
+                  </div>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CanvasToolbar() {
+  const { responsiveMode, setResponsiveMode, nodes } = useEditorStore();
+  const modes = [
+    { id: "desktop" as const, icon: Monitor, label: "Desktop" },
+    { id: "tablet" as const, icon: Tablet, label: "Tablet" },
+    { id: "mobile" as const, icon: Smartphone, label: "Mobile" },
+  ];
+  return (
+    <div className="flex items-center justify-between px-2">
+      <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 rounded-full bg-[#FF4B58]" />
+          <div className="w-3 h-3 rounded-full bg-[#FFC600]" />
+          <div className="w-3 h-3 rounded-full bg-[#00CA48]" />
+        </div>
+        <span className="text-xs text-gray-500 dark:text-[#7A7A7A] hidden @md:block">
+          {nodes.length} element{nodes.length !== 1 ? "s" : ""}
+        </span>
+      </div>
+      <AddressBar />
+      <div className="flex items-center gap-0.5">
+        {modes.map(({ id, icon: Icon, label }) => (
+          <button
+            key={id}
+            onClick={() => setResponsiveMode(id)}
+            title={label}
+            className={cn(
+              "flex w-8 h-8 items-center justify-center rounded-md transition-all",
+              responsiveMode === id
+                ? "text-indigo-600 dark:text-[#CEFF00]"
+                : "text-gray-500 dark:text-[#7A7A7A]",
+            )}
+          >
+            <Icon className="w-5 h-5" />
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
