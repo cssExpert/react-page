@@ -96,6 +96,10 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 ### Mobile View
 ![Mobile View](./screenshots/editor.png)
 
+<p align="center">
+	<img src="./screenshots/editor.png" width="45%" />
+</p>
+
 ---
 
 ## 🌐 Live Demo
