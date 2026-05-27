@@ -1,8 +1,11 @@
+import { cn } from "@/lib/utils"; // Or your project's class-merging utility
+
 const SectionTitle = ({
   title,
   paragraph,
   width = "600px",
   center,
+  className,
   mb = "20px",
 }: {
   title: string;
@@ -10,11 +13,13 @@ const SectionTitle = ({
   width?: string;
   center?: boolean;
   mb?: string;
+  className?: string;
 }) => {
   return (
     <>
       <div
-        className={`w-full ${center ? "mx-auto max-w-175 text-center" : ""}`}
+        // className={`w-full ${center ? "mx-auto max-w-175 text-center" : ""}`}
+        className={cn("w-full", center && "mx-auto text-center", className)}
         style={{ maxWidth: width, marginBottom: mb }}
       >
         <h2 className="mb-2 text-lg md:text-xl lg:text-2xl font-bold leading-tight! text-black dark:text-white">

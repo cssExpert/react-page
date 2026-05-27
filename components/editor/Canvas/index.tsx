@@ -4,7 +4,6 @@ import { useRef, Fragment } from "react";
 import { useDndContext, useDroppable } from "@dnd-kit/core";
 import { motion, AnimatePresence } from "framer-motion";
 import { Monitor, Tablet, Smartphone, MousePointer2, Plus } from "lucide-react";
-
 import { useEditorStore } from "@/store/editorStore";
 import CanvasNode from "./CanvasNode";
 import { cn } from "@/lib/utils";
@@ -47,7 +46,7 @@ function InsertZone({ index }: { index: number }) {
 
 export default function Canvas() {
   const { nodes, responsiveMode, selectNode, showGrid } = useEditorStore();
-  const canvasRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLDivElement | null>(null);
 
   const { active } = useDndContext();
   const isDragActive = active?.data.current?.type === "BLOCK";
@@ -57,11 +56,11 @@ export default function Canvas() {
   });
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden bg-slate-100 dark:bg-[#131313]">
+    <div className="flex-1 flex flex-col overflow-hidden bg-trnsparent">
       <div className="flex-1 flex overflow-hidden px-8 py-5">
         <div
           className={cn(
-            "relative flex flex-col transition-all mx-auto duration-300 w-full rounded-xl",
+            "relative flex flex-col transition-all mx-auto duration-300 w-full rounded-xl overflow-hidden",
             CANVAS_WIDTHS[responsiveMode],
             responsiveMode !== "desktop" && "shadow-2xl",
           )}
@@ -69,9 +68,7 @@ export default function Canvas() {
           <div
             ref={(el) => {
               setNodeRef(el);
-              (
-                canvasRef as React.MutableRefObject<HTMLDivElement | null>
-              ).current = el;
+              canvasRef.current = el;
             }}
             className={cn(
               "flex-1 flex flex-col bg-white dark:bg-[#252525] rounded-xl overflow-hidden relative border border-gray-200 dark:border-[#2A2A2A]",
@@ -87,12 +84,12 @@ export default function Canvas() {
             }}
           >
             {/* Canvas toolbar */}
-            <div className="shrink-0 bg-gray-200 dark:bg-[#252525] border-b border-gray-200 dark:border-[#333333] px-3 py-2">
+            <div className="position z-50 shrink-0 bg-gray-200 dark:bg-[#252525] border-b border-gray-200 dark:border-[#333333] px-3 py-2">
               <CanvasToolbar />
             </div>
 
             {/* Scrollable content area */}
-            <div className="flex-1 overflow-y-auto bg-white dark:bg-[#1A1A1A] relative @container">
+            <div data-canvas-scroll className="flex-1 overflow-y-auto bg-white dark:bg-[#1A1A1A] relative @container">
               {responsiveMode !== "desktop" && (
                 <div className="absolute -top-px left-0 right-0 flex justify-end pointer-events-none z-10">
                   <div className="text-[11px] px-3 py-0.5 rounded-t-md font-inter bg-gray-100 dark:bg-[#252525] text-gray-500 dark:text-[#7A7A7A]">
@@ -131,7 +128,7 @@ export default function Canvas() {
                     </p>
                   </motion.div>
                 ) : (
-                  <div className="pt-10 pb-2 px-2 md:px-3">
+                  <div className="pt-10 pb-2 px-2 md:px-4">
                     {isDragActive && <InsertZone index={0} />}
                     {nodes.map((node, index) => (
                       <Fragment key={node.id}>

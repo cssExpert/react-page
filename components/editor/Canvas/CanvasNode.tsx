@@ -1,6 +1,13 @@
 "use client";
 
-import React, { useRef, useState, useEffect } from "react";
+import React, {
+  useRef,
+  useState,
+  useEffect,
+  useLayoutEffect,
+  useCallback,
+} from "react";
+import { createPortal } from "react-dom";
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 import { motion } from "framer-motion";
 import {
@@ -9,6 +16,8 @@ import {
   GripVertical,
   ChevronUp,
   ChevronDown,
+  Plus,
+  Pin,
 } from "lucide-react";
 import type { EditorNode } from "@/types/editor";
 import { useEditorStore } from "@/store/editorStore";
@@ -21,7 +30,13 @@ interface CanvasNodeProps {
   isDragActive?: boolean;
 }
 
-function BesideZone({ nodeId, side }: { nodeId: string; side: "left" | "right" }) {
+function BesideZone({
+  nodeId,
+  side,
+}: {
+  nodeId: string;
+  side: "left" | "right";
+}) {
   const { setNodeRef, isOver } = useDroppable({
     id: `beside-${side}-${nodeId}`,
     data: { type: "BESIDE", nodeId, side },
@@ -34,8 +49,8 @@ function BesideZone({ nodeId, side }: { nodeId: string; side: "left" | "right" }
         side === "left" ? "left-0" : "right-0",
         isOver
           ? side === "left"
-            ? "bg-gradient-to-r from-indigo-400/20 dark:from-[#CEFF00]/15 to-transparent"
-            : "bg-gradient-to-l from-indigo-400/20 dark:from-[#CEFF00]/15 to-transparent"
+            ? "bg-linear-to-r from-indigo-400/20 dark:from-[#CEFF00]/15 to-transparent"
+            : "bg-linear-to-l from-indigo-400/20 dark:from-[#CEFF00]/15 to-transparent"
           : "bg-transparent",
       )}
     >
@@ -51,7 +66,19 @@ function BesideZone({ nodeId, side }: { nodeId: string; side: "left" | "right" }
   );
 }
 
-const VOID_TAGS = new Set(["input", "textarea", "img", "br", "hr", "meta", "link"]);
+const VOID_TAGS = new Set([
+  "input",
+  "textarea",
+  "img",
+  "br",
+  "hr",
+  "meta",
+  "link",
+]);
+
+function isHtmlContent(str: string | undefined): boolean {
+  return typeof str === "string" && /<[a-z]/i.test(str);
+}
 
 export default function CanvasNode({
   node,
@@ -75,6 +102,9 @@ export default function CanvasNode({
   const isHovered = hoveredId === node.id && !isSelected;
   const [isEditing, setIsEditing] = useState(false);
   const contentRef = useRef<HTMLElement>(null);
+  const outerRef = useRef<HTMLDivElement>(null);
+  const [nodeRect, setNodeRect] = useState<DOMRect | null>(null);
+  const [canvasBounds, setCanvasBounds] = useState<DOMRect | null>(null);
 
   const {
     attributes,
@@ -99,7 +129,33 @@ export default function CanvasNode({
 
   const rootIdx = isRoot ? index : undefined;
   const canMoveUp = isRoot && rootIdx !== undefined && rootIdx > 0;
-  const canMoveDown = isRoot && rootIdx !== undefined && rootIdx < nodes.length - 1;
+  const canMoveDown =
+    isRoot && rootIdx !== undefined && rootIdx < nodes.length - 1;
+
+  // Track the bounding rect of the outer wrapper for portalled overlays.
+  const updateRect = useCallback(() => {
+    if (outerRef.current) {
+      setNodeRect(outerRef.current.getBoundingClientRect());
+      const canvasEl = outerRef.current.closest<HTMLElement>(
+        "[data-canvas-scroll]",
+      );
+      if (canvasEl) setCanvasBounds(canvasEl.getBoundingClientRect());
+    }
+  }, []);
+
+  useLayoutEffect(() => {
+    if (!isSelected || isEditing) {
+      //setNodeRect(null);
+      return;
+    }
+    updateRect();
+    window.addEventListener("scroll", updateRect, true);
+    window.addEventListener("resize", updateRect);
+    return () => {
+      window.removeEventListener("scroll", updateRect, true);
+      window.removeEventListener("resize", updateRect);
+    };
+  }, [isSelected, isEditing, updateRect]);
 
   const outlineClass = isDragging
     ? ""
@@ -108,7 +164,7 @@ export default function CanvasNode({
       : isOver
         ? "outline outline-2 outline-green-500"
         : isSelected
-          ? "outline outline-2 outline-indigo-600 dark:outline-[#CEFF00]"
+          ? "outline outline-2 outline-indigo-600 dark:outline-[#CEFF00] z-50"
           : isHovered
             ? "outline outline-1 outline-indigo-200 dark:outline-[#CEFF00]/30"
             : showOutlines
@@ -205,78 +261,62 @@ export default function CanvasNode({
     node.content
   );
 
+  // Clamped toolbar position — derived from state, safe to compute during render
+  const TOOLBAR_H = 32;
+  const TOOLBAR_W = 220;
+  const toolbarTop = nodeRect
+    ? canvasBounds && nodeRect.top - TOOLBAR_H - 2 < canvasBounds.top + 4
+      ? nodeRect.bottom + 4
+      : nodeRect.top - TOOLBAR_H - 2
+    : 0;
+  const toolbarLeft = nodeRect
+    ? Math.max(
+        canvasBounds ? canvasBounds.left : 4,
+        Math.min(
+          nodeRect.left,
+          canvasBounds
+            ? canvasBounds.right - TOOLBAR_W
+            : window.innerWidth - TOOLBAR_W,
+        ),
+      )
+    : 0;
+  const addBtnTop = nodeRect
+    ? canvasBounds
+      ? Math.min(nodeRect.bottom + 8, canvasBounds.bottom - 44)
+      : nodeRect.bottom + 8
+    : 0;
+  const addBtnLeft = nodeRect
+    ? canvasBounds
+      ? Math.max(
+          canvasBounds.left + 4,
+          Math.min(
+            nodeRect.left + nodeRect.width / 2 - 20,
+            canvasBounds.right - 44,
+          ),
+        )
+      : nodeRect.left + nodeRect.width / 2 - 20
+    : 0;
+
+  // Hide portal overlays when the node has scrolled outside the canvas bounds
+  const isNodeInView =
+    nodeRect && canvasBounds
+      ? nodeRect.bottom > canvasBounds.top &&
+        nodeRect.top < canvasBounds.bottom &&
+        nodeRect.right > canvasBounds.left &&
+        nodeRect.left < canvasBounds.right
+      : true;
+
   return (
-    <div className={cn("relative group/node", isDragging && "z-50")}>
+    <div
+      ref={outerRef}
+      className={cn("relative group/node", isDragging && "z-50")}
+    >
       {/* Side drop zones — only on root nodes while dragging */}
       {isRoot && isDragActive && !isDragging && (
         <>
           <BesideZone nodeId={node.id} side="left" />
           <BesideZone nodeId={node.id} side="right" />
         </>
-      )}
-
-      {/* Floating toolbar */}
-      {isSelected && !isEditing && (
-        <motion.div
-          initial={{ opacity: 0, y: -4 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="absolute -top-8 left-0 z-50 flex items-center rounded-md shadow-lg overflow-hidden bg-indigo-600 dark:bg-[#CEFF00]"
-        >
-          {isRoot && (
-            <>
-              <button
-                disabled={!canMoveUp}
-                className="p-1.5 disabled:opacity-30 transition-opacity text-white dark:text-black"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (canMoveUp && rootIdx !== undefined)
-                    useEditorStore.getState().reorderNodes(node.id, nodes[rootIdx - 1].id);
-                }}
-              >
-                <ChevronUp className="w-3 h-3" />
-              </button>
-              <button
-                disabled={!canMoveDown}
-                className="p-1.5 disabled:opacity-30 transition-opacity text-white dark:text-black"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (canMoveDown && rootIdx !== undefined)
-                    useEditorStore.getState().reorderNodes(node.id, nodes[rootIdx + 1].id);
-                }}
-              >
-                <ChevronDown className="w-3 h-3" />
-              </button>
-            </>
-          )}
-          <div
-            className="p-1.5 cursor-grab active:cursor-grabbing text-white dark:text-black"
-            {...listeners}
-            {...attributes}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <GripVertical className="w-3 h-3" />
-          </div>
-          <button
-            className="p-1.5 transition-opacity hover:opacity-70 text-white dark:text-black"
-            onClick={(e) => {
-              e.stopPropagation();
-              duplicateNode(node.id);
-            }}
-            title="Duplicate"
-          >
-            <Copy className="w-3 h-3" />
-          </button>
-          <button
-            className="p-1.5 hover:bg-red-500/20 transition-colors text-white dark:text-black"
-            onClick={(e) => {
-              e.stopPropagation();
-              removeNode(node.id);
-            }}
-            title="Delete"
-          >
-            <Trash2 className="w-3 h-3" />
-          </button>
-        </motion.div>
       )}
 
       {/* Tag label badge */}
@@ -290,19 +330,136 @@ export default function CanvasNode({
       {isVoid ? (
         <Tag {...(nodeProps as React.HTMLAttributes<HTMLElement>)} />
       ) : isEditing && canEdit ? (
-        /* contentEditable editing mode — dangerouslySetInnerHTML sets initial
-           content once; React won't overwrite user edits while isEditing is true */
         <Tag
           {...(nodeProps as React.HTMLAttributes<HTMLElement>)}
           contentEditable
           suppressContentEditableWarning
           dangerouslySetInnerHTML={{ __html: node.content ?? "" }}
         />
+      ) : isHtmlContent(node.content) ? (
+        <Tag
+          {...(nodeProps as React.HTMLAttributes<HTMLElement>)}
+          dangerouslySetInnerHTML={{ __html: node.content! }}
+        />
       ) : (
         <Tag {...(nodeProps as React.HTMLAttributes<HTMLElement>)}>
           {childContent}
         </Tag>
       )}
+
+      {/* ── Portalled overlays (escape any interactive parent in the DOM) ── */}
+      {typeof window !== "undefined" &&
+        isSelected &&
+        !isEditing &&
+        nodeRect &&
+        isNodeInView &&
+        createPortal(
+          <>
+            <motion.div
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              style={{
+                position: "absolute",
+                top: toolbarTop,
+                left: toolbarLeft,
+              }}
+              className="z-40 flex items-center rounded-md shadow-lg overflow-hidden bg-indigo-600 dark:bg-[#CEFF00]"
+            >
+              {isRoot && (
+                <>
+                  <button
+                    disabled={!canMoveUp}
+                    className="p-1.5 disabled:opacity-30 transition-opacity text-white dark:text-black"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (canMoveUp && rootIdx !== undefined)
+                        useEditorStore
+                          .getState()
+                          .reorderNodes(node.id, nodes[rootIdx - 1].id);
+                    }}
+                  >
+                    <ChevronUp className="w-3 h-3" />
+                  </button>
+                  <button
+                    disabled={!canMoveDown}
+                    className="p-1.5 disabled:opacity-30 transition-opacity text-white dark:text-black"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (canMoveDown && rootIdx !== undefined)
+                        useEditorStore
+                          .getState()
+                          .reorderNodes(node.id, nodes[rootIdx + 1].id);
+                    }}
+                  >
+                    <ChevronDown className="w-3 h-3" />
+                  </button>
+                </>
+              )}
+              <div
+                className="p-1.5 cursor-grab active:cursor-grabbing text-white dark:text-black"
+                {...listeners}
+                {...attributes}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <GripVertical className="w-3 h-3" />
+              </div>
+              <button
+                className="p-1.5 transition-opacity hover:opacity-70 text-white dark:text-black"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  duplicateNode(node.id);
+                }}
+                title="Duplicate"
+              >
+                <Copy className="w-3 h-3" />
+              </button>
+              <button
+                className="p-1.5 transition-opacity hover:opacity-70 text-white dark:text-black"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeNode(node.id);
+                }}
+                title="Pin"
+              >
+                <Pin className="w-3 h-3" />
+              </button>
+              <button
+                className="p-1.5 hover:bg-red-500/20 transition-colors text-white dark:text-black"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeNode(node.id);
+                }}
+                title="Delete"
+              >
+                <Trash2 className="w-3 h-3" />
+              </button>
+            </motion.div>
+
+            {/* Bottom-center Add Block button — root blocks only */}
+            {isRoot && (
+              <motion.button
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                title="Add block"
+                style={{
+                  position: "absolute",
+                  top: addBtnTop,
+                  left: addBtnLeft,
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  useEditorStore.getState().setBlockPickerOpen(true);
+                }}
+                className="z-40 w-10 h-10 rounded-full flex items-center justify-center
+                    bg-indigo-600 dark:bg-[#CEFF00] text-white dark:text-black
+                    shadow-lg hover:scale-110 active:scale-95 transition-transform"
+              >
+                <Plus className="w-4 h-4" />
+              </motion.button>
+            )}
+          </>,
+          document.body,
+        )}
     </div>
   );
 }

@@ -10,6 +10,8 @@ import {
   Layers,
   Feather,
   Grid3x3,
+  Loader2,
+  X,
 } from "lucide-react";
 import Link from "next/link";
 import { COMPONENT_BLOCKS, CATEGORIES } from "@/lib/componentBlocks";
@@ -64,14 +66,14 @@ function CategorySection({
         <span className="text-[10px] font-semibold uppercase tracking-widest">
           {category}
         </span>
-        <div className="flex items-center gap-1.5">
+        <span className="flex items-center gap-1.5">
           <span className="text-[10px] opacity-50">{blocks.length}</span>
           {open ? (
             <ChevronDown className="w-3 h-3" />
           ) : (
             <ChevronRight className="w-3 h-3" />
           )}
-        </div>
+        </span>
       </button>
       <AnimatePresence>
         {open && (
@@ -111,35 +113,44 @@ export function Brand() {
 
 export default function LeftSidebar() {
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [activeTab, setActiveTab] = useState<"blocks" | "layers">("blocks");
   const [mounted, setMounted] = useState(false);
   const { selectedId } = useEditorStore();
 
-  // Delay rendering until client hydration is finished
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setMounted(true);
-    }, 0);
-
+    const timer = setTimeout(() => setMounted(true), 0);
     return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
     if (selectedId) {
-      // Delays execution to the next tick, safely clearing the cascading render phase
-      const timer = setTimeout(() => {
-        setActiveTab("layers");
-      }, 0);
-
+      const timer = setTimeout(() => setActiveTab("layers"), 0);
       return () => clearTimeout(timer);
     }
   }, [selectedId]);
 
-  const filtered = search.trim()
+  const isSearching = search !== debouncedSearch;
+
+  useEffect(() => {
+    if (!search.trim()) {
+      // setDebouncedSearch(search);
+      return;
+    }
+    const t = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(t);
+  }, [search]);
+
+  function clearSearch() {
+    setSearch("");
+    setDebouncedSearch("");
+  }
+
+  const filtered = debouncedSearch.trim()
     ? COMPONENT_BLOCKS.filter(
         (b) =>
-          b.label.toLowerCase().includes(search.toLowerCase()) ||
-          b.category.toLowerCase().includes(search.toLowerCase()),
+          b.label.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+          b.category.toLowerCase().includes(debouncedSearch.toLowerCase()),
       )
     : null;
 
@@ -147,10 +158,19 @@ export default function LeftSidebar() {
     <aside className="w-60 flex flex-col h-full overflow-hidden border-r bg-white dark:bg-[#1D1D1D] border-gray-200 dark:border-[#2A2A2A]">
       <Brand />
 
-      {/* Tab bar + Search */}
-      <div className="shrink-0 p-2 border-b border-gray-200 dark:border-[#2A2A2A]">
-        {/* Tabs */}
-        <div className="flex gap-1 mb-2 rounded-lg p-0.5 bg-gray-100 dark:bg-[#252525]">
+      {/* Tab bar + Search container */}
+      <div className="shrink-0 p-2 border-b border-gray-200 dark:border-[#2A2A2A] flex flex-col gap-2">
+        {/* Sliding Pill Tabs Track */}
+        <div className="relative flex p-1 bg-gray-100 dark:bg-[#252525] rounded-lg">
+          {/* The Sliding Pill background */}
+          <div
+            className="absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] rounded-md bg-white shadow-sm dark:bg-[#CEFF00] transition-transform duration-200 ease-out-quad"
+            style={{
+              transform:
+                activeTab === "layers" ? "translateX(100%)" : "translateX(0)",
+            }}
+          />
+
           {(["blocks", "layers"] as const).map((tab) => {
             const active = activeTab === tab;
             return (
@@ -158,10 +178,10 @@ export default function LeftSidebar() {
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={cn(
-                  "flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-md text-xs font-medium transition-all",
+                  "relative z-10 flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-md text-xs font-medium transition-colors duration-200",
                   active
-                    ? "bg-indigo-600 dark:bg-[#CEFF00] text-white dark:text-black"
-                    : "text-gray-500 dark:text-[#7A7A7A]",
+                    ? "text-dark dark:text-black font-semibold"
+                    : "text-gray-500 dark:text-[#7A7A7A] hover:text-gray-700 dark:hover:text-gray-300",
                 )}
               >
                 {tab === "blocks" ? (
@@ -177,7 +197,15 @@ export default function LeftSidebar() {
 
         {/* Search */}
         <div className="relative">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 pointer-events-none text-gray-500 dark:text-[#7A7A7A]" />
+          {/* Left icon */}
+          <div className="absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none">
+            {isSearching ? (
+              <Loader2 className="w-3.5 h-3.5 text-indigo-500 dark:text-[#CEFF00] animate-spin" />
+            ) : (
+              <Search className="w-3.5 h-3.5 text-gray-500 dark:text-[#7A7A7A]" />
+            )}
+          </div>
+
           <input
             type="text"
             placeholder={
@@ -185,26 +213,59 @@ export default function LeftSidebar() {
             }
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-8 pr-3 py-1.5 rounded-md text-xs transition-colors
+            className="w-full pl-8 py-1.5 rounded-md text-xs transition-colors
               bg-gray-100 dark:bg-[#252525]
               border border-gray-200 dark:border-[#383838]
               text-gray-900 dark:text-[#E8E8E8]
               focus:outline-none focus:border-indigo-500 dark:focus:border-[#CEFF00]"
+            style={{ paddingRight: search ? "1.75rem" : "0.5rem" }}
           />
+
+          {/* Clear button */}
+          {search && (
+            <button
+              onClick={clearSearch}
+              className="absolute right-1.5 top-1/2 -translate-y-1/2
+                w-4 h-4 rounded-full flex items-center justify-center
+                bg-gray-300 dark:bg-white/15
+                text-gray-600 dark:text-neutral-400
+                hover:bg-gray-400 dark:hover:bg-white/25
+                transition-colors"
+              aria-label="Clear search"
+            >
+              <X className="w-2 h-2" />
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Content Side panel with hydration check */}
+      {/* Content Side panel */}
       <div className="flex-1 overflow-y-auto py-1.5 custom-scrollbar">
         {!mounted ? (
           <div className="w-full h-20 animate-pulse bg-gray-50 dark:bg-neutral-900/50" />
         ) : activeTab === "blocks" ? (
-          filtered ? (
+          isSearching ? (
+            /* Loading state while debounce is pending */
+            <div className="flex flex-col items-center justify-center py-10 gap-2">
+              <Loader2 className="w-5 h-5 text-indigo-400 dark:text-[#CEFF00] animate-spin" />
+              <p className="text-[11px] text-gray-400 dark:text-[#7A7A7A]">
+                Searching…
+              </p>
+            </div>
+          ) : filtered ? (
             <div className="px-1">
               {filtered.length === 0 ? (
-                <p className="text-xs text-center py-10 text-gray-500 dark:text-[#7A7A7A]">
-                  No blocks found
-                </p>
+                <div className="flex flex-col items-center py-10 gap-1.5 px-3 text-center">
+                  <p className="text-xs font-medium text-gray-500 dark:text-[#A0A0A0]">
+                    No blocks found
+                  </p>
+                  <button
+                    onClick={clearSearch}
+                    className="text-[11px] text-indigo-500 dark:text-[#CEFF00] hover:underline underline-offset-2"
+                  >
+                    Clear search
+                  </button>
+                </div>
               ) : (
                 filtered.map((b) => <DraggableBlock key={b.id} block={b} />)
               )}

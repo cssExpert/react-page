@@ -1,21 +1,21 @@
 import type { Metadata } from "next";
-import { Inter, Geist } from "next/font/google";
+import { Inter } from "next/font/google";
 import ThemeProvider from "@/components/ThemeProvider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
-
-const interFont = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
+const interFont = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Visual Editor — Build Beautiful Websites",
+  title: "Feather Editor — Build Beautiful Websites",
   description:
     "A powerful drag-and-drop visual website builder with Tailwind CSS",
+  openGraph: {
+    title: "Feather Editor — Build Beautiful Websites",
+    description:
+      "A powerful drag-and-drop visual website builder with Tailwind CSS",
+  },
 };
 
 export default function RootLayout({
@@ -26,7 +26,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={cn("h-full", "antialiased", interFont.variable, "font-sans", geist.variable)}
+      // 1. interFont.variable injects '--font-inter' into the DOM
+      // 2. 'font-sans' tells Tailwind to use the 'sans' configuration we just added
+      className={cn("h-full", "antialiased", interFont.className)}
       suppressHydrationWarning
     >
       <body className="h-full">

@@ -57,6 +57,10 @@ interface EditorState {
 
   // Helpers
   findNode: (id: string) => EditorNode | null
+
+  // Block picker
+  blockPickerOpen: boolean
+  setBlockPickerOpen: (open: boolean) => void
 }
 
 function findNodeById(nodes: EditorNode[], id: string): EditorNode | null {
@@ -121,6 +125,7 @@ export const useEditorStore = create<EditorState>()(
     clipboard: null,
     showGrid: false,
     showOutlines: true,
+    blockPickerOpen: false,
     // history[historyIndex] always reflects the current canvas state
     history: [[]],
     historyIndex: 0,
@@ -299,5 +304,7 @@ export const useEditorStore = create<EditorState>()(
     },
 
     findNode: (id) => findNodeById(get().nodes, id),
+
+    setBlockPickerOpen: (open) => set((state) => { state.blockPickerOpen = open }),
   }))
 )

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useState } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -30,8 +30,10 @@ import { COMPONENT_BLOCKS } from "@/lib/componentBlocks";
 import Canvas from "./Canvas";
 import RightSidebar from "./RightSidebar";
 import ThemeSwitcher from "./ThemeSwitcher";
+import TemplatePicker from "./TemplatePicker";
+import BlockPickerModal from "./BlockPickerModal";
 import { nanoid } from "nanoid";
-import type { EditorNode } from "@/types/editor";
+import type { ComponentBlock, EditorNode } from "@/types/editor";
 
 function deepCloneWithNewIds(node: EditorNode): EditorNode {
   return {
@@ -45,18 +47,8 @@ function EditorHeader() {
   return (
     <header
       className="shrink-0 h-auto flex items-center justify-between px-8 pt-4 z-40
-      bg-none
-      dark:bg-[#131313]"
+      bg-trsnsparent"
     >
-      {/* Page name */}
-      {/* <input
-        defaultValue="Untitled Page"
-        className="text-sm font-medium bg-transparent border-none outline-none rounded px-2 py-0.5 text-center w-40
-          text-gray-500 hover:bg-gray-50 focus:bg-gray-50
-          dark:text-[#A0A0A0] dark:hover:bg-[#252525] dark:focus:bg-[#252525]
-          transition-colors"
-      /> */}
-
       {/* Right actions */}
       <div className="flex flex-1 items-center justify-between gap-3">
         <ThemeSwitcher />
@@ -83,8 +75,39 @@ function EditorHeader() {
   );
 }
 
+function containsNode(node: EditorNode, id: string): boolean {
+  if (!node.children) return false;
+  return node.children.some((c) => c.id === id || containsNode(c, id));
+}
+
 export default function EditorLayout() {
-  const { addNode, reorderNodes, selectNode, wrapInRow } = useEditorStore();
+  const {
+    addNode,
+    reorderNodes,
+    selectNode,
+    wrapInRow,
+    blockPickerOpen,
+    setBlockPickerOpen,
+  } = useEditorStore();
+  const [showTemplatePicker, setShowTemplatePicker] = useState(true);
+
+  function handleInsertBlock(block: ComponentBlock) {
+    const { nodes, selectedId } = useEditorStore.getState();
+    const clone = deepCloneWithNewIds(block.template);
+
+    if (!selectedId) {
+      addNode(clone);
+      return;
+    }
+
+    // Find the root-level index of the selected node (or its ancestor)
+    let rootIdx = nodes.findIndex((n) => n.id === selectedId);
+    if (rootIdx === -1) {
+      rootIdx = nodes.findIndex((n) => containsNode(n, selectedId));
+    }
+
+    addNode(clone, undefined, rootIdx !== -1 ? rootIdx + 1 : undefined);
+  }
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
@@ -184,7 +207,7 @@ export default function EditorLayout() {
       <div className="flex flex-col h-screen overflow-hidden bg-slate-100 dark:bg-[#131313]">
         <div className="flex flex-1 min-h-0 overflow-hidden select-none">
           <LeftSidebar />
-          <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+          <div className="flex-1 flex flex-col min-w-0 canvas-container overflow-hidden bg-slate-100 dark:bg-[#131313]">
             <EditorHeader />
             <Canvas />
             <BottomToolbar />
@@ -192,6 +215,16 @@ export default function EditorLayout() {
           <RightSidebar />
         </div>
       </div>
+
+      <TemplatePicker
+        open={showTemplatePicker}
+        onClose={() => setShowTemplatePicker(false)}
+      />
+      <BlockPickerModal
+        open={blockPickerOpen}
+        onClose={() => setBlockPickerOpen(false)}
+        onSelect={handleInsertBlock}
+      />
 
       <DragOverlay>
         <motion.div

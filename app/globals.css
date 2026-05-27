@@ -2,6 +2,10 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+@theme {
+  --font-sans: var(--font-inter), sans-serif;
+}
+
 /* @theme {
   --color-indigo-50: #edff9f;
   --color-indigo-100: #e5ff73;
@@ -36,6 +40,23 @@
 
 button {
   cursor: pointer;
+}
+
+.header.fixed {
+  @apply py-3 lg:py-4;
+  animation: fadeInDown 0.7s ease-in-out 0s 1 normal none running;
+  transition: all 0.3s ease 0s;
+}
+
+@keyframes fadeInDown {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -100%, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translateZ(0);
+  }
 }
 
 /* ─── Canvas grid ────────────────────────────────────────────────── */
@@ -175,6 +196,14 @@ button {
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+
+  .canvas-container {
+    background-image: radial-gradient(
+      rgba(255, 255, 255, 0.075) 1px,
+      transparent 1px
+    );
+    background-size: 15px 15px;
+  }
 }
 
 @layer base {
@@ -186,5 +215,15 @@ button {
   }
   html {
     @apply font-sans;
+    scroll-behavior: smooth;
+  }
+
+  .canvas-container {
+    background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+    background-size: 15px 15px;
+  }
+
+  .js-block-selected {
+    z-index: 50 !important;
   }
 }
