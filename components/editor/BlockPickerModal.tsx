@@ -13,7 +13,7 @@ function BlockPreview({ category }: { category: string }) {
   switch (category) {
     case "Hero":
       return (
-        <div className="w-full h-full bg-gradient-to-br from-slate-800 to-indigo-900 flex flex-col items-center justify-center gap-1.5 p-3">
+        <div className="w-full h-full bg-linear-to-br from-slate-800 to-indigo-900 flex flex-col items-center justify-center gap-1.5 p-3">
           <div className="h-2 w-1/2 rounded bg-white/60" />
           <div className="h-1.5 w-2/3 rounded bg-white/35" />
           <div className="h-1 w-5/6 rounded bg-white/20" />
@@ -105,7 +105,7 @@ function BlockPreview({ category }: { category: string }) {
               <div className="h-1 w-3/4 rounded bg-gray-100" />
               <div className="h-1 w-5/6 rounded bg-gray-100" />
               <div className="flex items-center gap-1 mt-auto pt-1">
-                <div className="w-3 h-3 rounded-full bg-gradient-to-br from-indigo-300 to-violet-400" />
+                <div className="w-3 h-3 rounded-full bg-linear-to-br from-indigo-300 to-violet-400" />
                 <div className="h-1 w-1/2 rounded bg-gray-200" />
               </div>
             </div>
@@ -141,7 +141,7 @@ function BlockPreview({ category }: { category: string }) {
             "from-amber-300 to-orange-400",
           ].map((g, i) => (
             <div key={i} className="flex flex-col items-center gap-1">
-              <div className={`w-5 h-5 rounded-full bg-gradient-to-br ${g}`} />
+              <div className={`w-5 h-5 rounded-full bg-linear-to-br ${g}`} />
               <div className="h-1 w-6 rounded bg-gray-200" />
             </div>
           ))}
@@ -173,7 +173,7 @@ function BlockPreview({ category }: { category: string }) {
               "from-rose-300 to-red-300",
               "from-indigo-300 to-blue-300",
             ].map((g, i) => (
-              <div key={i} className={`rounded bg-gradient-to-br ${g}`} />
+              <div key={i} className={`rounded bg-linear-to-br ${g}`} />
             ))}
           </div>
         </div>
@@ -182,7 +182,7 @@ function BlockPreview({ category }: { category: string }) {
       return (
         <div className="w-full h-full bg-gray-50 flex items-center justify-center p-2">
           <div className="w-4/5 rounded-xl bg-white border border-gray-100 overflow-hidden shadow-sm">
-            <div className="h-7 bg-gradient-to-r from-blue-400 to-indigo-500" />
+            <div className="h-7 bg-linear-to-r from-blue-400 to-indigo-500" />
             <div className="p-1.5 flex flex-col gap-0.5">
               <div className="h-1.5 w-2/3 rounded bg-gray-200" />
               <div className="h-1 w-full rounded bg-gray-100" />
@@ -226,7 +226,7 @@ function BlockPreview({ category }: { category: string }) {
     case "Images":
       return (
         <div className="w-full h-full bg-gray-50 flex items-center justify-center p-2">
-          <div className="w-4/5 aspect-video rounded-lg bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+          <div className="w-4/5 aspect-video rounded-lg bg-linear-to-br from-gray-200 to-gray-300 flex items-center justify-center">
             <div className="w-6 h-6 rounded-md bg-gray-400/40" />
           </div>
         </div>
@@ -254,7 +254,7 @@ function BlockPreview({ category }: { category: string }) {
       );
     default:
       return (
-        <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+        <div className="w-full h-full bg-linear-to-br from-gray-100 to-gray-200 flex items-center justify-center">
           <div className="w-8 h-8 rounded-lg bg-gray-300" />
         </div>
       );

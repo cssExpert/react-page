@@ -75,7 +75,7 @@ const INITIAL_FOLDERS = [
 const INITIAL_FILES = [
   {
     id: "img-1",
-    name: "neon-gradient-hero.png",
+    name: "neon-linear-hero.png",
     type: "image",
     url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=60",
     size: "1.2 MB",
@@ -613,12 +613,12 @@ export default function AssetsManagement() {
           <div className="relative flex-1 min-h-0 min-w-0">
             {/* Top fade — visible after scrolling down */}
             <div
-              className="pointer-events-none absolute inset-x-0 top-0 h-10 z-10 transition-opacity duration-200 bg-gradient-to-b from-white dark:from-[#131313] to-transparent"
+              className="pointer-events-none absolute inset-x-0 top-0 h-10 z-10 transition-opacity duration-200 bg-linear-to-b from-white dark:from-[#131313] to-transparent"
               style={{ opacity: showTopFade ? 1 : 0 }}
             />
             {/* Bottom fade — visible when more content is below */}
             <div
-              className="pointer-events-none absolute inset-x-0 bottom-0 h-12.5 z-10 transition-opacity duration-200 bg-gradient-to-t from-white dark:from-[#131313] to-transparent"
+              className="pointer-events-none absolute inset-x-0 bottom-0 h-12.5 z-10 transition-opacity duration-200 bg-linear-to-t from-white dark:from-[#131313] to-transparent"
               style={{ opacity: showBottomFade ? 1 : 0 }}
             />
             <div
@@ -739,7 +739,7 @@ export default function AssetsManagement() {
                             >
                               <div className="flex items-center gap-3 min-w-0 mr-2">
                                 {/* Sleek themed container for the folder icon to look super clean */}
-                                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-md bg-amber-500/10 text-amber-500 dark:bg-amber-500/15">
+                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-amber-500/10 text-amber-500 dark:bg-amber-500/15">
                                   <Folder className="h-5 w-5 fill-amber-500/20 text-amber-500" />
                                 </div>
                                 <div className="min-w-0">

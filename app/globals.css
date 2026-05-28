@@ -313,4 +313,8 @@ button {
   .js-block-selected {
     z-index: 50 !important;
   }
+
+  .pb-[\75\%] {
+    padding-block-end: 75%;
+  }
 }

@@ -4,6 +4,7 @@ import Header from "@/components/common/Header";
 import Hero from "@/components/home/Hero";
 import Features from "@/components/home/Features";
 import Promotion from "@/components/home/Promotion";
+import Resources from "@/components/home/Resources";
 
 export default function HomePage() {
   return (
@@ -23,6 +24,7 @@ export default function HomePage() {
       <Hero />
       <Features />
       <Promotion />
+      <Resources />
     </main>
   );
 }

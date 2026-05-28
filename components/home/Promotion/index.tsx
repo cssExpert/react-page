@@ -14,7 +14,7 @@ export default function Promotion() {
     <div className="min-h-screen text-white font-sans overflow-x-hidden selection:bg-neutral-800 selection:text-white pb-24">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 xl:px-0 mt-0">
         <div className="max-w-4xl text-center mx-auto mb-15">
-          <h3 className="text-4xl md:text-6xl lg:text-8xl font-bold mb-6 leading-tight tracking-tight text-balance">
+          <h3 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight tracking-tight text-balance">
             Scale{" "}
             <span className="animate-fade-in bg-linear-to-r from-cyan-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">
               without

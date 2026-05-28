@@ -76,6 +76,11 @@ const VOID_TAGS = new Set([
   "link",
 ]);
 
+// Tags that must never be rendered as real HTML elements inside the editor —
+// React warns about <script> in JSX and neither <script> nor <style> should
+// execute inside a visual canvas. They get a neutral placeholder div instead.
+const INERT_TAGS = new Set(["script", "style", "noscript"]);
+
 function isHtmlContent(str: string | undefined): boolean {
   return typeof str === "string" && /<[a-z]/i.test(str);
 }
@@ -126,6 +131,37 @@ export default function CanvasNode({
   const hasChildren = !isVoid && node.children !== undefined;
   // Only leaf nodes with text content are editable
   const canEdit = !isVoid && !hasChildren && node.content !== undefined;
+
+  // Render an inert placeholder for tags React must not emit as real elements.
+  if (INERT_TAGS.has(node.tag)) {
+    return (
+      <div
+        className={cn(
+          "inline-flex items-center gap-1.5 px-2 py-1 rounded font-mono text-[11px] bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 border border-dashed border-neutral-300 dark:border-neutral-600 select-none cursor-default",
+          isSelected && "outline-2 outline-indigo-600 dark:outline-[#CEFF00]",
+          isHovered &&
+            !isSelected &&
+            "outline-1 outline-indigo-200 dark:outline-[#CEFF00]/30",
+        )}
+        onClick={(e) => {
+          e.stopPropagation();
+          selectNode(node.id);
+        }}
+        onMouseEnter={(e) => {
+          e.stopPropagation();
+          hoverNode(node.id);
+        }}
+        onMouseLeave={(e) => {
+          e.stopPropagation();
+          hoverNode(null);
+        }}
+      >
+        <span className="opacity-50">&lt;</span>
+        {node.tag}
+        <span className="opacity-50">/&gt;</span>
+      </div>
+    );
+  }
 
   const rootIdx = isRoot ? index : undefined;
   const canMoveUp = isRoot && rootIdx !== undefined && rootIdx > 0;

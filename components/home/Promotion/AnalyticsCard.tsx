@@ -190,7 +190,8 @@ export default function AnalyticsCard({
             className="w-full h-32 relative cursor-crosshair"
           >
             <svg
-              className="w-full h-full overflow-visible"
+              className="w-full h-full"
+              viewBox="0 0 400 120"
               preserveAspectRatio="none"
             >
               <defs>
@@ -207,14 +208,22 @@ export default function AnalyticsCard({
                 </linearGradient>
                 <linearGradient
                   className="w-full"
-                  id="purpleGlow"
+                  id="amberGlow"
                   x1="0"
                   y1="0"
                   x2="0"
                   y2="1"
                 >
-                  <stop offset="0%" stopColor="#c084fc" stopOpacity="0.4" />
-                  <stop offset="100%" stopColor="#c084fc" stopOpacity="0" />
+                  <stop
+                    offset="0%"
+                    stopColor="var(--bg-accessibility)"
+                    stopOpacity="0.4"
+                  />
+                  <stop
+                    offset="100%"
+                    stopColor="var(--bg-accessibility)"
+                    stopOpacity="0"
+                  />
                 </linearGradient>
               </defs>
 
@@ -231,7 +240,7 @@ export default function AnalyticsCard({
                   L ${400} ${120 - (graphData[8].pageviews / 330000) * 100}
                 `}
                 fill="none"
-                stroke="#3b82f6"
+                stroke="var(--bg-seo)"
                 strokeWidth="2.5"
                 strokeLinecap="round"
               />
@@ -249,7 +258,7 @@ export default function AnalyticsCard({
                   L ${400} ${120 - (graphData[8].visitors / 330000) * 100}
                 `}
                 fill="none"
-                stroke="#c084fc"
+                stroke="var(--bg-accessibility)"
                 strokeWidth="2.5"
                 strokeLinecap="round"
               />
@@ -272,28 +281,28 @@ export default function AnalyticsCard({
                     cx={`${(hoverIndex / (graphData.length - 1)) * 100}%`}
                     cy={`${120 - (graphData[hoverIndex].pageviews / 330000) * 100}`}
                     r="5"
-                    fill="#3b82f6"
+                    fill="var(--bg-seo)"
                     stroke="white"
                     strokeWidth="2.5"
-                    className="drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]"
+                    className="drop-shadow-[0_0_8px_rgba(59,130,246,0.8)] shrink-0"
                   />
                   <circle
                     cx={`${(hoverIndex / (graphData.length - 1)) * 100}%`}
                     cy={`${120 - (graphData[hoverIndex].visitors / 330000) * 100}`}
                     r="5"
-                    fill="#c084fc"
+                    fill="var(--bg-accessibility)"
                     stroke="white"
                     strokeWidth="2.5"
-                    className="drop-shadow-[0_0_8px_rgba(192,132,252,0.8)]"
+                    className="drop-shadow-[0_0_8px_rgba(192,132,252,0.8)] shrink-0"
                   />
                 </>
               )}
             </svg>
 
             <div
-              className="absolute z-10 bg-black/90 border border-white/10 rounded-xl p-3.5 shadow-2xl backdrop-blur-md text-xs w-42.5 pointer-events-none transition-all duration-75"
+              className="absolute z-10 bg-black/90 border border-white/10 rounded-xl p-3.5 shadow-2xl backdrop-blur-md text-xs w-40 pointer-events-none transition-all duration-75"
               style={{
-                left: `${Math.max(5, Math.min(65, (hoverIndex / (graphData.length - 1)) * 100))}%`,
+                left: `clamp(0%, ${(hoverIndex / (graphData.length - 1)) * 100}%, calc(100% - 10rem))`,
                 bottom: "50px",
               }}
             >
@@ -303,7 +312,7 @@ export default function AnalyticsCard({
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-1.5 text-neutral-300">
-                    <span className="w-2 h-2 rounded-full bg-cyan-500 inline-block" />
+                    <span className="w-2 h-2 rounded-full bg-indigo-500 inline-block" />
                     Pageviews
                   </span>
                   <span className="font-mono font-semibold text-white">
@@ -312,7 +321,7 @@ export default function AnalyticsCard({
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-1.5 text-neutral-300">
-                    <span className="w-2 h-2 rounded-full bg-purple-400 inline-block" />
+                    <span className="w-2 h-2 rounded-full bg-amber-400 inline-block" />
                     Visitors
                   </span>
                   <span className="font-mono font-semibold text-white">
