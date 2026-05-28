@@ -18,7 +18,6 @@ const SectionTitle = ({
   return (
     <>
       <div
-        // className={`w-full ${center ? "mx-auto max-w-175 text-center" : ""}`}
         className={cn("w-full", center && "mx-auto text-center", className)}
         style={{ maxWidth: width, marginBottom: mb }}
       >
