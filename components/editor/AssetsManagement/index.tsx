@@ -199,7 +199,7 @@ export default function AssetsManagement() {
   }, []);
 
   // Toast helper
-  const triggerToast = (msg) => {
+  const triggerToast = (msg: string) => {
     setNotificationMsg(msg);
     setShowNotification(true);
     setTimeout(() => setShowNotification(false), 3000);
@@ -287,7 +287,7 @@ export default function AssetsManagement() {
   };
 
   // Add Folder logic
-  const handleCreateFolder = (e) => {
+  const handleCreateFolder = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!newFolderName.trim()) return;
     const newFolder = {
@@ -303,7 +303,7 @@ export default function AssetsManagement() {
   };
 
   // Delete Asset logic
-  const handleDeleteAsset = (assetId, isFolder = false) => {
+  const handleDeleteAsset = (assetId: string, isFolder = false) => {
     if (isFolder) {
       setFolders(folders.filter((f) => f.id !== assetId));
       setFiles(
@@ -323,7 +323,7 @@ export default function AssetsManagement() {
   };
 
   // Copy to clipboard fallback wrapper
-  const copyToClipboard = (text, message = "Copied to clipboard!") => {
+  const copyToClipboard = (text: string, message = "Copied to clipboard!") => {
     const el = document.createElement("textarea");
     el.value = text;
     document.body.appendChild(el);
@@ -334,7 +334,7 @@ export default function AssetsManagement() {
   };
 
   // Generate Next.js code snippets for selected asset
-  const getNextJsSnippet = (asset) => {
+  const getNextJsSnippet = (asset: AssetFile | null) => {
     if (!asset) return "";
     if (asset.type === "image") {
       const dimensions = asset.resolution
