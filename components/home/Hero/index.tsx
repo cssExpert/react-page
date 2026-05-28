@@ -12,13 +12,13 @@ const Hero = () => {
           <Zap className="w-4 h-4 text-amber-500" />
           Next.js 15 · Tailwind · dnd-kit · Framer Motion
         </div>
-        <h1 className="text-6xl md:text-8xl font-extrabold mb-6 leading-tight tracking-tight">
+        <h1 className="text-5xl md:text-7xl lg:text-8xl font-extrabold mb-6 leading-tight tracking-tight">
           Your Skills Deserve{" "}
-          <span className="bg-linear-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+          <span className="animate-fade-in bg-linear-to-r from-cyan-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">
             More Visibility
           </span>
         </h1>
-        <p className="text-xl text-neutral-200 mb-10 max-w-2xl mx-auto leading-relaxed">
+        <p className="text-md md:text-xl text-neutral-200 mb-10 max-w-2xl mx-auto leading-relaxed">
           We help creators, professionals, and brands transform experience into
           a strong online identity that stands out.
         </p>

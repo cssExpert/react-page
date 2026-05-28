@@ -437,7 +437,7 @@ export default function BottomToolbar() {
                 )}
                 <button
                   onClick={() => useEditorStore.getState().selectNode(node.id)}
-                  className="text-xs font-mono truncate max-w-[72px] transition-colors text-gray-500 dark:text-[#7A7A7A] hover:text-indigo-600 dark:hover:text-[#CEFF00]"
+                  className="text-xs font-mono truncate max-w-18 transition-colors text-gray-500 dark:text-[#7A7A7A] hover:text-indigo-600 dark:hover:text-[#CEFF00]"
                   title={node.type}
                 >
                   {node.tag}

@@ -210,6 +210,10 @@ button {
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  --bg-seo: lab(38.4009 52.6132 -92.3857);
+  --bg-performance: lab(75.0771 -60.7313 19.4147);
+  --bg-accessibility: lab(72.7183 31.8672 97.9407);
 }
 
 :root {
