@@ -16,6 +16,9 @@ export const metadata: Metadata = {
     description:
       "A powerful drag-and-drop visual website builder with Tailwind CSS",
   },
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({

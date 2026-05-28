@@ -213,39 +213,37 @@ export default function Resources() {
   const [theme] = useState<Theme>("modern");
 
   return (
-    <div className="w-full overflow-x-hidden">
-      <div className="max-w-full mx-auto px-0 py-10 flex flex-col gap-8">
-        <div className="max-w-4xl text-center mx-auto mb-10">
-          <h3 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight tracking-tight text-balance">
-            Launch{" "}
-            <span className="animate-fade-in bg-linear-to-r from-cyan-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">
-              faster
-            </span>{" "}
-            with community resources
-          </h3>
-          <p className="text-xl text-neutral-200 mb-10 max-w-3xl mx-auto leading-relaxed">
-            Accelerate development using ready-made sections, templates,
-            components, and shared assets from the editor community.
-          </p>
-        </div>
-        {/* Ticker stage */}
-        <div className="flex flex-col gap-4 overflow-hidden shadow-inner">
-          <CustomTicker
-            items={items}
-            velocity={Math.round(velocity * 1)}
-            rtl={isRtl}
-            pauseOnHover={pauseOnHover}
-            theme={theme}
-          />
-          <CustomTicker
-            items={items}
-            velocity={Math.round(velocity * 1)}
-            rtl={!isRtl}
-            pauseOnHover={pauseOnHover}
-            theme={theme}
-          />
-        </div>
+    <section className="overflow-x-hidden max-w-full mx-auto py-12 md:pt-16 md:pb-24">
+      <div className="max-w-4xl text-center mx-auto mb-10">
+        <h3 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight tracking-tight text-balance">
+          Launch{" "}
+          <span className="animate-fade-in bg-linear-to-r from-cyan-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">
+            faster
+          </span>{" "}
+          with community resources
+        </h3>
+        <p className="text-xl text-neutral-200 mb-10 max-w-3xl mx-auto leading-relaxed">
+          Accelerate development using ready-made sections, templates,
+          components, and shared assets from the editor community.
+        </p>
       </div>
-    </div>
+      {/* Ticker stage */}
+      <div className="flex flex-col gap-4 overflow-hidden shadow-inner">
+        <CustomTicker
+          items={items}
+          velocity={Math.round(velocity * 1)}
+          rtl={isRtl}
+          pauseOnHover={pauseOnHover}
+          theme={theme}
+        />
+        <CustomTicker
+          items={items}
+          velocity={Math.round(velocity * 1)}
+          rtl={!isRtl}
+          pauseOnHover={pauseOnHover}
+          theme={theme}
+        />
+      </div>
+    </section>
   );
 }
