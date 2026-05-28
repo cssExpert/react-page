@@ -123,7 +123,7 @@ export default function AnalyticsCard({
   return (
     <TiltCard debugMode={debugMode} className="p-4 sm:p-8 flex flex-col h-full">
       <div className="space-y-2 mb-6">
-        <span className="text-xs font-mono text-cyan-400 bg-cyan-400/10 px-2 py-1 rounded">
+        <span className="text-xs text-cyan-400 bg-cyan-400/10 px-2 py-1 rounded">
           Module 01
         </span>
         <h2 className="text-xl md:text-2xl font-bold tracking-tight mt-2 text-white">
@@ -306,7 +306,7 @@ export default function AnalyticsCard({
                 bottom: "50px",
               }}
             >
-              <div className="text-[10px] text-neutral-500 font-mono mb-1.5">
+              <div className="text-[10px] text-neutral-500 mb-1.5">
                 {graphData[hoverIndex].label}, 2026
               </div>
               <div className="space-y-1">
@@ -315,7 +315,11 @@ export default function AnalyticsCard({
                     <span className="w-2 h-2 rounded-full bg-indigo-500 inline-block" />
                     Pageviews
                   </span>
-                  <span className="font-mono font-semibold text-white">
+                  {/* Added suppressHydrationWarning to handle localized number format mismatches */}
+                  <span
+                    className="font-semibold text-white"
+                    suppressHydrationWarning
+                  >
                     {graphData[hoverIndex].pageviews.toLocaleString()}
                   </span>
                 </div>
@@ -324,7 +328,11 @@ export default function AnalyticsCard({
                     <span className="w-2 h-2 rounded-full bg-amber-400 inline-block" />
                     Visitors
                   </span>
-                  <span className="font-mono font-semibold text-white">
+                  {/* Added suppressHydrationWarning to handle localized number format mismatches */}
+                  <span
+                    className="font-semibold text-white"
+                    suppressHydrationWarning
+                  >
                     {graphData[hoverIndex].visitors.toLocaleString()}
                   </span>
                 </div>
@@ -352,7 +360,7 @@ export default function AnalyticsCard({
                     {ref.name}
                   </span>
                 </div>
-                <span className="font-mono text-neutral-400 font-semibold">
+                <span className="text-neutral-400 font-semibold">
                   {ref.count}
                 </span>
               </div>
